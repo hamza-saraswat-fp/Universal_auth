@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+
+# never commit real credentials — see CLAUDE.md
+.env
+.env.*
+!.env.example
+
+.DS_Store
+*.log
+.claude/
+supabase/.temp/
+supabase/.branches/
