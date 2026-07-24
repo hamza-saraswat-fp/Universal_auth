@@ -6,14 +6,20 @@
  *
  * This entry point must never import anything but `jose`. That constraint is
  * what lets a bare backend service verify a token without pulling in a browser
- * auth library or a React runtime.
+ * auth library or a React runtime, and `test/imports.test.ts` enforces it.
+ *
+ * ```ts
+ * const claims = await verifyToken(token);
+ * const role = requireApp(claims, "comp-intel", "admin");
+ * ```
  */
 
 export { AuthError, ROLE_RANK } from "./types";
-export type { FpClaims, FpRole } from "./types";
+export type { AuthErrorCode, FpClaims, FpRole } from "./types";
 
 export { authUrl, publishableKey, issuer, jwksUrl } from "./env";
 
-// TODO(IAI-407): verifyToken(), requireApp(), getApps(), createVerifier().
-// Verification checks the signature against the JWKS above, plus `issuer()`
-// and an audience of "authenticated".
+export { createVerifier, verifyToken } from "./verify";
+export type { Verifier, VerifierOptions } from "./verify";
+
+export { getApps, hasApp, requireApp } from "./permissions";

@@ -39,9 +39,49 @@ App data stays where it already lives. Your app's backend verifies the central t
 
 Service-to-service auth is also out of scope. Juju and the email agent authenticate as services, not as people; this system is for humans in browsers.
 
+## Verifying tokens
+
+The core entry point works today. It's all a backend service needs — an API route, a Railway worker, anything replacing a shared-password middleware.
+
+```ts
+import { verifyToken, requireApp, AuthError } from "@fieldpulse/auth";
+
+try {
+  const claims = await verifyToken(token);
+  const role = requireApp(claims, "comp-intel", "member"); // "member" | "admin"
+} catch (error) {
+  if (error instanceof AuthError) {
+    // error.code: "expired" | "invalid_token" | "forbidden" | "unavailable" | "config"
+    // error.status: 401 | 403 | 500 | 503
+  }
+}
+```
+
+`verifyToken` checks the signature against the auth project's public keys, plus the issuer, audience, and expiry. It needs **one environment variable** — `FP_AUTH_URL` — and no API key at all, since the key set is public.
+
+Branch on `error.code` rather than the message:
+
+| `code` | `status` | Means |
+|---|---|---|
+| `expired` | 401 | Signature was good, token is past expiry — refresh rather than sending the user to log in |
+| `invalid_token` | 401 | Malformed, tampered with, unknown signing key, or from a different project |
+| `forbidden` | 403 | Authenticated, but no grant for this app or the role is too low |
+| `unavailable` | 503 | The key set couldn't be fetched. A problem with the auth project, **not** the token — don't sign anyone out over it |
+| `config` | 500 | `FP_AUTH_URL` isn't set |
+
+Other exports:
+
+```ts
+getApps(claims)                       // { "comp-intel": "admin", … }, or {}
+hasApp(claims, "comp-intel", "admin") // boolean; the non-throwing form
+createVerifier({ url, jwks, clockTolerance }) // point at another project, or inject keys
+```
+
+`admin` satisfies a `member` requirement; the reverse does not. `requireApp` returns the role actually held, so you can branch without a second lookup.
+
 ## Quickstart for a new app
 
-> Not usable yet — the package is scaffolded but unimplemented. Follow [IAI-407](https://linear.app/fieldpulse/issue/IAI-407), [IAI-408](https://linear.app/fieldpulse/issue/IAI-408), and [IAI-409](https://linear.app/fieldpulse/issue/IAI-409). `docs/runbooks/add-an-app.md` becomes the real guide.
+> The Next.js and React helpers below aren't built yet — [IAI-408](https://linear.app/fieldpulse/issue/IAI-408) and [IAI-409](https://linear.app/fieldpulse/issue/IAI-409). `docs/runbooks/add-an-app.md` becomes the real guide.
 
 ```bash
 npm i "github:hamza-saraswat-fp/Universal_auth#v0.1.0"
@@ -75,12 +115,12 @@ Finally, add your app's URLs to the redirect allow-list in the auth project and 
 
 ## Package layout
 
-| Entry point | What it's for | Dependencies |
-|---|---|---|
-| `@fieldpulse/auth` | Token verification and role guards. Runs anywhere with Web Crypto. | `jose` only |
-| `@fieldpulse/auth/next` | Session refresh and server-side guards | `@supabase/ssr`, `next` |
-| `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` |
-| `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` |
+| Entry point | What it's for | Dependencies | Status |
+|---|---|---|---|
+| `@fieldpulse/auth` | Token verification and role guards. Runs anywhere with Web Crypto. | `jose` only | ✅ |
+| `@fieldpulse/auth/next` | Session refresh and server-side guards | `@supabase/ssr`, `next` | IAI-408 |
+| `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` | IAI-408 |
+| `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` | IAI-409 |
 
 The core entry point deliberately has one dependency, so a bare Node service can verify a token without pulling in a browser auth library or a React runtime.
 
