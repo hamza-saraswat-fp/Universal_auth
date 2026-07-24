@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # --ignore-scripts skips the `prepare` build; the build step below runs it
+      # explicitly so a failure there is reported as a build failure.
+      - run: npm ci --ignore-scripts
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
