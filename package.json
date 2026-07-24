@@ -1,0 +1,79 @@
+{
+  "name": "@fieldpulse/auth",
+  "version": "0.0.1",
+  "description": "Central authentication for FieldPulse internal tools",
+  "license": "UNLICENSED",
+  "private": false,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamza-saraswat-fp/Universal_auth.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "import": "./dist/next.js",
+      "require": "./dist/next.cjs"
+    },
+    "./next/callback": {
+      "types": "./dist/next/callback.d.ts",
+      "import": "./dist/next/callback.js",
+      "require": "./dist/next/callback.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup && tsup --config tsup.react.config.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "jose": "^6.2.4"
+  },
+  "peerDependencies": {
+    "@supabase/ssr": ">=0.7.0",
+    "@supabase/supabase-js": ">=2.58.0",
+    "next": ">=14",
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "@supabase/ssr": {
+      "optional": true
+    },
+    "@supabase/supabase-js": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
+  }
+}
