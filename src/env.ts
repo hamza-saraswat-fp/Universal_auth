@@ -17,7 +17,7 @@ function read(...names: string[]): string | undefined {
 export function authUrl(): string {
   const url = read("FP_AUTH_URL", "NEXT_PUBLIC_FP_AUTH_URL");
   if (!url) {
-    throw new AuthError("FP_AUTH_URL (or NEXT_PUBLIC_FP_AUTH_URL) is not set", 500);
+    throw new AuthError("FP_AUTH_URL (or NEXT_PUBLIC_FP_AUTH_URL) is not set", 500, "config");
   }
   return url.replace(/\/+$/, "");
 }
@@ -32,6 +32,7 @@ export function publishableKey(): string {
     throw new AuthError(
       "FP_AUTH_PUBLISHABLE_KEY (or NEXT_PUBLIC_FP_AUTH_PUBLISHABLE_KEY) is not set",
       500,
+      "config",
     );
   }
   return key;
