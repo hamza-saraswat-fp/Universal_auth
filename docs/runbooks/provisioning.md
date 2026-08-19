@@ -94,13 +94,13 @@ A `540` response means the project is paused — which should be impossible on a
 
 Confirmed on 2026-07-24 that `@fieldpulse/auth` fetches this live key set correctly: a token signed by an untrusted key was rejected as `invalid_token` rather than `unavailable`, which exercises the whole remote-fetch path against the real endpoint.
 
-Until Google is enabled, this returns `400`:
+The Google provider is live as of 2026-08-19 ([IAI-405](https://linear.app/fieldpulse/issue/IAI-405)) — this returns a `302` toward `accounts.google.com`:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" "https://wrxtvqvrpjhkicjdwqoc.supabase.co/auth/v1/authorize?provider=google"
 ```
 
-Once [IAI-405](https://linear.app/fieldpulse/issue/IAI-405) is done it should be a `302` toward `accounts.google.com`.
+Details and rotation procedure: [`google-oauth.md`](google-oauth.md).
 
 ## Still to confirm in the dashboard
 

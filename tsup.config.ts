@@ -14,7 +14,9 @@ export default defineConfig({
   sourcemap: true,
   treeshake: true,
   // Framework packages are peer deps — never bundle them, or consuming apps
-  // end up with two copies of React or the Supabase client.
-  external: ["next", "react", "react-dom", "@supabase/ssr", "@supabase/supabase-js"],
+  // end up with two copies of React or the Supabase client. Regexes so that
+  // subpath imports (next/server, next/headers, react/jsx-runtime) stay
+  // external too; a bare "next" string would not cover them.
+  external: [/^next(\/|$)/, /^react(-dom)?(\/|$)/, /^@supabase\//],
   clean: true,
 });

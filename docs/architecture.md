@@ -258,7 +258,7 @@ A verify-only service needs just the URL.
 | Token verification | Asymmetric keys + JWKS | No shared secrets; any service can verify offline |
 | Cross-project data access | Server-side verification | The only pattern actually available; also matches how our apps are built |
 | Repo layout | Single package at root | npm can't install a workspace sub-package from a git URL, which would force GitHub Packages tokens into every app |
-| Custom auth domain | Deferred, see [IAI-416](https://linear.app/fieldpulse/issue/IAI-416) | Baked into every app's env and the OAuth client, so it's cheapest to decide early — and the answer for internal tools is "not needed" |
+| Custom auth domain | **Decided 2026-08-19: none** ([IAI-416](https://linear.app/fieldpulse/issue/IAI-416)) | Internal tools; nobody is asked to trust the address bar. Cost accepted: recreating the project means updating every app's env (documented in the provisioning runbook). Revisit only if this IdP ever fronts something customer-facing or we migrate off Supabase |
 | Admin UI | Deferred, see [IAI-414](https://linear.app/fieldpulse/issue/IAI-414) | SQL editor is fine until grant volume or a non-technical owner makes it not fine |
 
 ---
