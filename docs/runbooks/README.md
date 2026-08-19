@@ -6,8 +6,8 @@ Operational procedures for `fieldpulse-auth`. Anything configured by clicking th
 |---|---|---|
 | [`provisioning.md`](provisioning.md) | The auth project: ref, settings chosen and why, how to rebuild it | ✅ [IAI-404](https://linear.app/fieldpulse/issue/IAI-404) |
 | [`google-oauth.md`](google-oauth.md) | The OAuth client, why the audience is Internal, rotating the secret | ✅ [IAI-405](https://linear.app/fieldpulse/issue/IAI-405) |
-| `add-an-app.md` | Wiring auth into a new internal app, including redirect allow-list globs | [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
-| `offboarding.md` | Removing someone's access everywhere, and the real revocation window | [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
-| `operations.md` | Granting access, auditing, key rotation, what to do during an outage | [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
+| [`add-an-app.md`](add-an-app.md) | Wiring auth into a new internal app, including redirect allow-list globs | ✅ [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
+| [`offboarding.md`](offboarding.md) | Removing someone's access everywhere, and the real revocation window | ✅ [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
+| [`operations.md`](operations.md) | Grants, audits, seeding, key rotation, outage behavior | ✅ [IAI-410](https://linear.app/fieldpulse/issue/IAI-410) |
 
 Use placeholders for anything sensitive (`<PROJECT_REF>`, `sb_publishable_<REPLACE_ME>`). Real keys live in env stores and the password manager.
