@@ -11,6 +11,6 @@ export default defineConfig({
   // from source. Without this the React entry is silently treated as a server
   // component in every consuming app. The entry is small; nothing is lost.
   treeshake: false,
-  external: ["next", "react", "react-dom", "@supabase/ssr", "@supabase/supabase-js"],
+  external: [/^next(\/|$)/, /^react(-dom)?(\/|$)/, /^@supabase\//],
   clean: false,
 });

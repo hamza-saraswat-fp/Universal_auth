@@ -81,10 +81,10 @@ createVerifier({ url, jwks, clockTolerance }) // point at another project, or in
 
 ## Quickstart for a new app
 
-> The Next.js and React helpers below aren't built yet — [IAI-408](https://linear.app/fieldpulse/issue/IAI-408) and [IAI-409](https://linear.app/fieldpulse/issue/IAI-409). `docs/runbooks/add-an-app.md` becomes the real guide.
+> The server side is real as of `v0.2.0`. The React provider and hooks are pending [IAI-409](https://linear.app/fieldpulse/issue/IAI-409); `docs/runbooks/add-an-app.md` becomes the full walkthrough.
 
 ```bash
-npm i "github:hamza-saraswat-fp/Universal_auth#v0.1.0"
+npm i "github:hamza-saraswat-fp/Universal_auth#v0.2.0"
 ```
 
 ```bash
@@ -97,19 +97,26 @@ A backend service that only verifies tokens needs just the URL.
 Then three files: a callback route, a proxy (or middleware) for session refresh, and a guard on whatever you're protecting.
 
 ```ts
-// app/auth/callback/route.ts
+// app/auth/callback/route.ts — the PKCE code exchange; sign-in doesn't work without it
 export { GET } from "@fieldpulse/auth/next/callback";
 ```
 
 ```ts
-// proxy.ts on Next 16, middleware.ts on Next 14/15 — never both
-export { fpAuthProxy as proxy } from "@fieldpulse/auth/next";
+// proxy.ts on Next 16 — or middleware.ts on Next 14/15, never both
+import { createAuthProxy, authProxyMatcher } from "@fieldpulse/auth/next";
+
+export const proxy = createAuthProxy({ app: "your-app-slug" }); // name it `middleware` on Next 14/15
+export const config = { matcher: authProxyMatcher };
 ```
 
 ```ts
-// in a server component or route handler
-const role = await requireAppServer("your-app-slug");
+// role-gated surfaces and mutations, in a server component or route handler
+import { requireAppServer } from "@fieldpulse/auth/next";
+
+const role = await requireAppServer("your-app-slug", "admin");
 ```
+
+The proxy refreshes the session on every request and routes people: signed out → `/login`, signed in without a grant for your app → `/no-access`. Your app renders those two pages — a sign-in button on one, a "here's who to ask for access" note on the other (both paths configurable, always public).
 
 Finally, add your app's URLs to the redirect allow-list in the auth project and insert permission rows for whoever should have access.
 
@@ -118,8 +125,8 @@ Finally, add your app's URLs to the redirect allow-list in the auth project and 
 | Entry point | What it's for | Dependencies | Status |
 |---|---|---|---|
 | `@fieldpulse/auth` | Token verification and role guards. Runs anywhere with Web Crypto. | `jose` only | ✅ |
-| `@fieldpulse/auth/next` | Session refresh and server-side guards | `@supabase/ssr`, `next` | IAI-408 |
-| `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` | IAI-408 |
+| `@fieldpulse/auth/next` | Auth proxy (session refresh + routing), server-side guards | `@supabase/ssr`, `next` | ✅ |
+| `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` | ✅ |
 | `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` | IAI-409 |
 
 The core entry point deliberately has one dependency, so a bare Node service can verify a token without pulling in a browser auth library or a React runtime.
