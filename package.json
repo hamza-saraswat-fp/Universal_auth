@@ -1,6 +1,6 @@
 {
   "name": "@fieldpulse/auth",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Central authentication for FieldPulse internal tools",
   "license": "UNLICENSED",
   "private": false,
@@ -70,8 +70,13 @@
   "devDependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^22.10.2",
+    "@types/react": "^19.2.18",
+    "happy-dom": "^20.11.2",
     "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "tsup": "^8.5.1",
     "typescript": "^5.7.2",
     "vitest": "^4.1.10"
