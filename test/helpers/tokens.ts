@@ -28,6 +28,8 @@ export interface SignOptions {
   lifetime?: number;
   /** Epoch seconds. Defaults to now. */
   issuedAt?: number;
+  /** Extra claims merged into the payload (e.g. user_metadata). */
+  claims?: Record<string, unknown>;
 }
 
 export interface TestKeys {
@@ -54,12 +56,14 @@ export async function createTestKeys(kid = "test-key"): Promise<TestKeys> {
       audience = "authenticated",
       lifetime = 3600,
       issuedAt = Math.floor(Date.now() / 1000),
+      claims = {},
     } = options;
 
     return new SignJWT({
       email,
       session_id: "session-1",
       ...(apps ? { app_metadata: { apps } } : {}),
+      ...claims,
     })
       .setProtectedHeader({ alg: ALG, kid })
       .setSubject(sub)

@@ -81,10 +81,10 @@ createVerifier({ url, jwks, clockTolerance }) // point at another project, or in
 
 ## Quickstart for a new app
 
-> The server side is real as of `v0.2.0`. The React provider and hooks are pending [IAI-409](https://linear.app/fieldpulse/issue/IAI-409); `docs/runbooks/add-an-app.md` becomes the full walkthrough.
+> Every entry point is real as of `v0.3.0`. `docs/runbooks/add-an-app.md` becomes the full walkthrough.
 
 ```bash
-npm i "github:hamza-saraswat-fp/Universal_auth#v0.2.0"
+npm i "github:hamza-saraswat-fp/Universal_auth#v0.3.0"
 ```
 
 ```bash
@@ -120,6 +120,50 @@ The proxy refreshes the session on every request and routes people: signed out �
 
 Finally, add your app's URLs to the redirect allow-list in the auth project and insert permission rows for whoever should have access.
 
+## The client side
+
+Wrap the app once, then render from the hooks. **These decide what to show, never what to allow** — client state can be fabricated, so anything that matters is enforced by the proxy and `requireAppServer()`.
+
+```tsx
+// app/layout.tsx
+import { FpAuthProvider } from "@fieldpulse/auth/react";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html><body><FpAuthProvider>{children}</FpAuthProvider></body></html>;
+}
+```
+
+```tsx
+// app/login/page.tsx
+"use client";
+import { signInWithGoogle } from "@fieldpulse/auth/react";
+
+export default function Login() {
+  return <button onClick={() => signInWithGoogle()}>Sign in with Google</button>;
+}
+```
+
+```tsx
+// anywhere client-side
+"use client";
+import { useAuth, useAppRole, signOut } from "@fieldpulse/auth/react";
+
+export function Header() {
+  const { status, user } = useAuth();          // status: "loading" | "signed-in" | "signed-out"
+  const role = useAppRole("your-app-slug");    // "member" | "admin" | null — rendering hint only
+
+  if (status === "loading") return <HeaderSkeleton />; // no signed-out flash on hard refresh
+  return (
+    <header>
+      {user?.name} {role === "admin" && <AdminTabLink />}
+      <button onClick={() => signOut()}>Sign out</button>
+    </header>
+  );
+}
+```
+
+`signInWithGoogle()` returns people to the page they started on (override with `next`), and `signOut()` hard-navigates so the server sees the cleared session immediately.
+
 ## Package layout
 
 | Entry point | What it's for | Dependencies | Status |
@@ -127,7 +171,7 @@ Finally, add your app's URLs to the redirect allow-list in the auth project and 
 | `@fieldpulse/auth` | Token verification and role guards. Runs anywhere with Web Crypto. | `jose` only | ✅ |
 | `@fieldpulse/auth/next` | Auth proxy (session refresh + routing), server-side guards | `@supabase/ssr`, `next` | ✅ |
 | `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` | ✅ |
-| `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` | IAI-409 |
+| `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` | ✅ |
 
 The core entry point deliberately has one dependency, so a bare Node service can verify a token without pulling in a browser auth library or a React runtime.
 
