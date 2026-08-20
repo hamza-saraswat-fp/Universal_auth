@@ -4,6 +4,8 @@ One sign-in for every internal FieldPulse tool.
 
 Sign in with your FieldPulse Google account once, and get access to whichever internal apps you're permitted to use. New projects add auth by installing this package and setting two environment variables.
 
+**Adding auth to your app? Start at [docs/ADD-AUTH.md](docs/ADD-AUTH.md)** — the proven ~10-minute guide, with a paste-into-Claude prompt that does the wiring for you.
+
 Tracked in Linear: [Universal Auth](https://linear.app/fieldpulse/project/universal-auth-2ac2b97ce2dd) (team `IAI`).
 
 ## The problem this solves
