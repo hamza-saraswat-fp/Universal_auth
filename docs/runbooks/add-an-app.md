@@ -1,5 +1,9 @@
 # Runbook: add auth to an internal app
 
+> **Start with [`docs/ADD-AUTH.md`](../ADD-AUTH.md)** — the proven one-pager
+> (including a paste-into-Claude prompt). This runbook is the longer-form
+> reference behind it.
+
 The walkthrough for wiring a new (or existing) internal Next.js app into
 central auth. Budget ~30 minutes. If something here doesn't survive contact
 with reality, the runbook is the bug — fix it in the same PR as your app work.
@@ -29,22 +33,32 @@ npm i "github:hamza-saraswat-fp/Universal_auth#v0.3.0"
 Pin a tag, never `#main`. The `prepare` script builds on install; consumers
 receive `dist/` only.
 
+Also install the peers your entry points need — **npm does not auto-install
+optional peers**: `@supabase/ssr` for the `/next` and `/react` entries (plus
+`@supabase/supabase-js` on Next). A core-only backend service needs neither.
+
 **Local dev** works as-is if you can `git clone` the repo (the install uses
 your git credentials).
 
-**Vercel / Railway** need read access to the private repo at build time. The
-standard mechanism: create a fine-grained GitHub PAT with read-only Contents
-access to `Universal_auth`, put it in the platform env as `GH_PAT`, and
-override the install command to rewrite git URLs through it:
+**Vercel: no token, no install config — it just works.** Vercel's GitHub
+connection fetches private git dependencies owned by the same connected
+account. Proven on the Juju pilot (2026-08-20), where an explicit
+installCommand override was not only unnecessary but broke the build — don't
+add one.
+
+**Railway** (and other CI without GitHub-connection credentials) needs the
+read-only `GH_PAT` (password manager / Vercel shared env) and a custom install
+command rewriting git URLs through it:
 
 ```bash
-git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/" && npm install
+git config --global --add url."https://x-access-token:$GH_PAT@github.com/".insteadOf "ssh://git@github.com/" && git config --global --add url."https://x-access-token:$GH_PAT@github.com/".insteadOf "https://github.com/" && npm install
 ```
 
-> ⚠️ **Not yet proven on a live deploy.** This is the documented-standard
-> approach, but per this runbook's own acceptance bar it gets verified during
-> the pilot ([IAI-411](https://linear.app/fieldpulse/issue/IAI-411)) — whoever
-> does that replaces this admonition with what actually worked.
+(The `ssh://` rewrite matters: npm records the dependency as `git+ssh` in
+lockfiles generated on dev machines.)
+
+> ⚠️ The Railway variant is not yet proven on a live deploy — whoever does the
+> first one updates this block with what actually worked.
 
 ## 2. Environment variables
 
