@@ -1,6 +1,6 @@
 {
   "name": "@fieldpulse/auth",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Central authentication for FieldPulse internal tools",
   "license": "UNLICENSED",
   "private": false,

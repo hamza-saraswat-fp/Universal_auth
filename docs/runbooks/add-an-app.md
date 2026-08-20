@@ -15,6 +15,11 @@ becomes the key in `app_permissions`, the value in every token's claims, and
 the string in every `requireApp` call. A check constraint rejects anything
 fancier. Slugs ride inside a cookie on every request — keep them short.
 
+## Which path are you on?
+
+- **Next.js app** → follow every step below.
+- **Vite / CRA SPA (no server)** → steps 1–2 as written, then skip the three files and two pages: instead call `configureAuth({ url, publishableKey })` with your `VITE_`-prefixed env values at app startup and wrap the app in `<FpAuthProvider><RequireAuth appName="…">`. Built-in sign-in and no-access screens are included; no `/auth/callback` route exists or is needed — the browser exchanges the OAuth code itself. Continue at step 5 (allow-list). **If the app has its own Supabase data client, set `auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }` on it** — its defaults will consume the auth callback's `?code=`. Remember: with no server, this gates who loads the app, not the data behind it.
+
 ## 1. Install the package
 
 ```bash

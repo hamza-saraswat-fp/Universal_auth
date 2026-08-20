@@ -1,44 +1,19 @@
 // @vitest-environment happy-dom
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { FpAuthProvider, useAppRole, useAuth, useUser } from "../src/react";
+import { mockClient } from "./helpers/mock-supabase";
 import { createTestKeys, type TestKeys } from "./helpers/tokens";
 
 let keys: TestKeys;
 
+afterEach(cleanup);
+
 beforeAll(async () => {
   keys = await createTestKeys();
 });
-
-type AuthCallback = (event: string, session: { access_token: string } | null) => void;
-
-/** A Supabase client stub exposing exactly what the provider touches. */
-function mockClient(initialToken: string | null = null) {
-  let callback: AuthCallback = () => {};
-  const unsubscribe = vi.fn();
-
-  const client = {
-    auth: {
-      getSession: async () => ({
-        data: { session: initialToken ? { access_token: initialToken } : null },
-        error: null,
-      }),
-      onAuthStateChange: (cb: AuthCallback) => {
-        callback = cb;
-        return { data: { subscription: { unsubscribe } } };
-      },
-    },
-  } as unknown as SupabaseClient;
-
-  return {
-    client,
-    unsubscribe,
-    emit: (event: string, token: string | null) =>
-      act(() => callback(event, token ? { access_token: token } : null)),
-  };
-}
 
 function wrapperWith(client: SupabaseClient) {
   return ({ children }: { children: ReactNode }) =>

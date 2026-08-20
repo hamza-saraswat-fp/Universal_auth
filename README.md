@@ -120,6 +120,35 @@ The proxy refreshes the session on every request and routes people: signed out �
 
 Finally, add your app's URLs to the redirect allow-list in the auth project and insert permission rows for whoever should have access.
 
+## No server? SPAs work too
+
+Vite / CRA apps (no Next.js, no server) skip the three files entirely — the whole integration is one config call and one wrapper:
+
+```tsx
+// src/main.tsx
+import { configureAuth, FpAuthProvider, RequireAuth } from "@fieldpulse/auth/react";
+
+configureAuth({
+  url: import.meta.env.VITE_FP_AUTH_URL,
+  publishableKey: import.meta.env.VITE_FP_AUTH_PUBLISHABLE_KEY,
+});
+
+// ...
+<FpAuthProvider>
+  <RequireAuth appName="My Tool">
+    <App />
+  </RequireAuth>
+</FpAuthProvider>
+```
+
+`RequireAuth` = any signed-in FieldPulse employee — **no database steps at all**. Signed-out visitors get a built-in sign-in screen and return to the page they were on; the OAuth code exchange happens in the browser, no callback route needed. Use `RequireApp app="slug" role="admin"` instead when the app needs per-person grants.
+
+> ⚠️ If the app has its own Supabase data client, give it
+> `auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }` —
+> its defaults will try to consume the auth callback's `?code=` parameter.
+
+One honest limit: an SPA has no server, so this gates **who can load the app**, not the data layer behind it — that's the app's own backend/RLS concern.
+
 ## The client side
 
 Wrap the app once, then render from the hooks. **These decide what to show, never what to allow** — client state can be fabricated, so anything that matters is enforced by the proxy and `requireAppServer()`.
@@ -171,7 +200,7 @@ export function Header() {
 | `@fieldpulse/auth` | Token verification and role guards. Runs anywhere with Web Crypto. | `jose` only | ✅ |
 | `@fieldpulse/auth/next` | Auth proxy (session refresh + routing), server-side guards | `@supabase/ssr`, `next` | ✅ |
 | `@fieldpulse/auth/next/callback` | PKCE code-exchange route | `@supabase/ssr`, `next` | ✅ |
-| `@fieldpulse/auth/react` | Provider and hooks for rendering | `react` | ✅ |
+| `@fieldpulse/auth/react` | Provider, hooks, and SPA guards (`RequireAuth`/`RequireApp`) | `react` | ✅ |
 
 The core entry point deliberately has one dependency, so a bare Node service can verify a token without pulling in a browser auth library or a React runtime.
 
