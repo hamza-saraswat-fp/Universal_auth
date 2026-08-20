@@ -17,7 +17,8 @@
 export { AuthError, ROLE_RANK } from "./types";
 export type { AuthErrorCode, FpClaims, FpRole } from "./types";
 
-export { authUrl, publishableKey, issuer, jwksUrl } from "./env";
+export { authUrl, configureAuth, publishableKey, issuer, jwksUrl } from "./env";
+export type { AuthConfig } from "./env";
 
 export { createVerifier, verifyToken } from "./verify";
 export type { Verifier, VerifierOptions } from "./verify";
